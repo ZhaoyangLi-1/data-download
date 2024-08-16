@@ -110,28 +110,28 @@ for split, patches in [("train", 50 + 1), ("val", 43 + 1)]:
         download_and_upload(
             [f"{url}zhiyuan_objv2_{split}.tar.gz"], s3_bucket=s3_bucket, s3_prefix=s3_prefix
         )  # annotations json
-        download_and_upload(
-            [f"{url}patch{i}.tar.gz" for i in range(patches)],
-            s3_bucket=s3_bucket,
-            s3_prefix=f"{s3_prefix}/images/train",
-            curl=True,
-            threads=64,
-        )
-    elif split == "val":
-        download_and_upload(
-            [f"{url}zhiyuan_objv2_{split}.json"], s3_bucket=s3_bucket, s3_prefix=s3_prefix
-        )  # annotations json
-        download_and_upload(
-            [f"{url}images/v1/patch{i}.tar.gz" for i in range(15 + 1)],
-            s3_bucket=s3_bucket,
-            s3_prefix=f"{s3_prefix}/images/val",
-            curl=True,
-            threads=64,
-        )
-        download_and_upload(
-            [f"{url}images/v2/patch{i}.tar.gz" for i in range(16, patches)],
-            s3_bucket=s3_bucket,
-            s3_prefix=f"{s3_prefix}/images/val",
-            curl=True,
-            threads=64,
-        )
+    #     download_and_upload(
+    #         [f"{url}patch{i}.tar.gz" for i in range(patches)],
+    #         s3_bucket=s3_bucket,
+    #         s3_prefix=f"{s3_prefix}/images/train",
+    #         curl=True,
+    #         threads=64,
+    #     )
+    # elif split == "val":
+    #     download_and_upload(
+    #         [f"{url}zhiyuan_objv2_{split}.json"], s3_bucket=s3_bucket, s3_prefix=s3_prefix
+    #     )  # annotations json
+    #     download_and_upload(
+    #         [f"{url}images/v1/patch{i}.tar.gz" for i in range(15 + 1)],
+    #         s3_bucket=s3_bucket,
+    #         s3_prefix=f"{s3_prefix}/images/val",
+    #         curl=True,
+    #         threads=64,
+    #     )
+    #     download_and_upload(
+    #         [f"{url}images/v2/patch{i}.tar.gz" for i in range(16, patches)],
+    #         s3_bucket=s3_bucket,
+    #         s3_prefix=f"{s3_prefix}/images/val",
+    #         curl=True,
+    #         threads=64,
+    #     )
