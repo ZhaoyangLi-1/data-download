@@ -63,7 +63,6 @@ def process_tar_file(file_obj, s3_bucket, s3_prefix):
                     if s3_file_exists(s3_bucket, s3_object_key):
                         print(f"File s3://{s3_bucket}/{s3_object_key} already exists, skipping.")
                         continue
-                    breakpoint()
                     extracted_file = tarObj.extractfile(member)
                     if extracted_file:
                         file_buffer = io.BytesIO(extracted_file.read())  # Read the content into a BytesIO object
@@ -111,6 +110,7 @@ def download_and_upload(urls, s3_bucket, s3_prefix, unzip=True, curl=True, threa
             file_obj.seek(0)
             if unzip and (is_zipfile(file_obj) or is_tarfile(file_obj)):
                 print(f"Processing {file_name} after download.")
+                breakpoint()
                 if is_zipfile(file_obj):
                     process_zip_file(file_obj, s3_bucket, s3_prefix)
                 elif is_tarfile(file_obj):
