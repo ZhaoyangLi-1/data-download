@@ -149,19 +149,19 @@ for split, patches in [("train", 50 + 1), ("val", 43 + 1)]:
         download_and_upload(
             [f"{base_url}zhiyuan_objv2_{split}.tar.gz"], s3_bucket=s3_bucket, s3_prefix=s3_prefix
         )
-    #     patch_urls = [f"{base_url}patch{i}.tar.gz" for i in range(patches)]
-    #     download_and_upload(
-    #         patch_urls, s3_bucket=s3_bucket, s3_prefix=f"{s3_prefix}/images/train", curl=True, threads=64
-    #     )
-    # elif split == "val":
-    #     download_and_upload(
-    #         [f"{base_url}zhiyuan_objv2_{split}.json"], s3_bucket=s3_bucket, s3_prefix=s3_prefix
-    #     )
-    #     patch_urls_v1 = [f"{base_url}images/v1/patch{i}.tar.gz" for i in range(15 + 1)]
-    #     download_and_upload(
-    #         patch_urls_v1, s3_bucket=s3_bucket, s3_prefix=f"{s3_prefix}/images/val", curl=True, threads=64
-    #     )
-    #     patch_urls_v2 = [f"{base_url}images/v2/patch{i}.tar.gz" for i in range(16, patches)]
-    #     download_and_upload(
-    #         patch_urls_v2, s3_bucket=s3_bucket, s3_prefix=f"{s3_prefix}/images/val", curl=True, threads=64
-    #     )
+        patch_urls = [f"{base_url}patch{i}.tar.gz" for i in range(patches)]
+        download_and_upload(
+            patch_urls, s3_bucket=s3_bucket, s3_prefix=f"{s3_prefix}/images/train", curl=True, threads=64
+        )
+    elif split == "val":
+        download_and_upload(
+            [f"{base_url}zhiyuan_objv2_{split}.json"], s3_bucket=s3_bucket, s3_prefix=s3_prefix
+        )
+        patch_urls_v1 = [f"{base_url}images/v1/patch{i}.tar.gz" for i in range(15 + 1)]
+        download_and_upload(
+            patch_urls_v1, s3_bucket=s3_bucket, s3_prefix=f"{s3_prefix}/images/val", curl=True, threads=64
+        )
+        patch_urls_v2 = [f"{base_url}images/v2/patch{i}.tar.gz" for i in range(16, patches)]
+        download_and_upload(
+            patch_urls_v2, s3_bucket=s3_bucket, s3_prefix=f"{s3_prefix}/images/val", curl=True, threads=64
+        )
