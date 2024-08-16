@@ -117,6 +117,7 @@ def download_and_upload(urls, s3_bucket, s3_prefix, unzip=True, curl=True, threa
 
         if success:
             file_obj.seek(0)
+            breakpoint()
             if unzip and (is_zipfile(file_obj) or is_tarfile(file_obj)):
                 print(f"Processing {file_name} after download.")
                 if is_zipfile(file_obj):
