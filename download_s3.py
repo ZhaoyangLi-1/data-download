@@ -14,7 +14,19 @@ s3_client = boto3.client('s3', endpoint_url='https://s3-haosu.nrp-nautilus.io',
                          aws_secret_access_key='tgzqkeWxfcwzRil8uI5lvrBxvD8qg0xsbQ1Leo3n')
 
 
+def s3_file_exists(bucket_name, object_key):
+    try:
+        s3_client.head_object(Bucket=bucket_name, Key=object_key)
+        return True
+    except:
+        return False
+
+
 def upload_to_s3(bucket_name, object_key, file_obj):
+    if s3_file_exists(bucket_name, object_key):
+        print(f"File s3://{bucket_name}/{object_key} already exists, skipping upload.")
+        return
+
     try:
         s3_client.upload_fileobj(file_obj, bucket_name, object_key)
         print(f"Uploaded to s3://{bucket_name}/{object_key}")
@@ -27,8 +39,12 @@ def process_zip_file(file_obj, s3_bucket, s3_prefix, exclude=(".DS_Store", "__MA
     with ZipFile(file_obj) as zipObj:
         for f in zipObj.namelist():
             if all(x not in f for x in exclude):
+                s3_object_key = f"{s3_prefix}/{f}"
+                if s3_file_exists(s3_bucket, s3_object_key):
+                    print(f"File s3://{s3_bucket}/{s3_object_key} already exists, skipping.")
+                    continue
+
                 with zipObj.open(f) as extracted_file:
-                    s3_object_key = f"{s3_prefix}/{f}"
                     upload_to_s3(s3_bucket, s3_object_key, extracted_file)
 
 
@@ -37,18 +53,27 @@ def process_tar_file(file_obj, s3_bucket, s3_prefix):
     with TarFile.open(fileobj=file_obj) as tarObj:
         for member in tarObj.getmembers():
             if member.isfile():
+                s3_object_key = f"{s3_prefix}/{member.name}"
+                if s3_file_exists(s3_bucket, s3_object_key):
+                    print(f"File s3://{s3_bucket}/{s3_object_key} already exists, skipping.")
+                    continue
+
                 extracted_file = tarObj.extractfile(member)
                 if extracted_file:
-                    s3_object_key = f"{s3_prefix}/{member.name}"
                     upload_to_s3(s3_bucket, s3_object_key, extracted_file)
 
 
 def download_and_upload(url, s3_bucket, s3_prefix, unzip=True, curl=True, threads=1, retry=3):
     # Multithreaded file download and unzip function, used in data.yaml for autodownload
     def download_one(url, s3_bucket, s3_prefix):
-        success = True
         file_name = url.split('/')[-1]
-        
+        s3_object_key = f"{s3_prefix}/{file_name}"
+
+        if s3_file_exists(s3_bucket, s3_object_key):
+            print(f"File s3://{s3_bucket}/{s3_object_key} already exists, skipping download.")
+            return
+
+        success = True
         print(f"Downloading {url}...")
         for i in range(retry + 1):
             try:
@@ -77,7 +102,6 @@ def download_and_upload(url, s3_bucket, s3_prefix, unzip=True, curl=True, thread
 
         if success:
             file_obj.seek(0)  # Reset file pointer to the beginning
-            s3_object_key = f"{s3_prefix}/{file_name}"
             if unzip and (is_zipfile(file_obj) or is_tarfile(file_obj)):
                 print(f"Processing {file_name}...")
                 if is_zipfile(file_obj):
