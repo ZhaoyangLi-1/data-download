@@ -54,19 +54,22 @@ def process_zip_file(file_obj, s3_bucket, s3_prefix, exclude=(".DS_Store", "__MA
 
 def process_tar_file(file_obj, s3_bucket, s3_prefix):
     print(f"Processing TAR file for upload to {s3_bucket}/{s3_prefix}")
-    with TarFile.open(fileobj=file_obj) as tarObj:
-        for member in tarObj.getmembers():
-            if member.isfile():
-                s3_object_key = f"{s3_prefix}/{member.name}"
-                print(f"Processing file {member.name} from TAR for upload to s3://{s3_bucket}/{s3_object_key}")
-                if s3_file_exists(s3_bucket, s3_object_key):
-                    print(f"File s3://{s3_bucket}/{s3_object_key} already exists, skipping.")
-                    continue
-
-                extracted_file = tarObj.extractfile(member)
-                if extracted_file:
-                    file_buffer = io.BytesIO(extracted_file.read())  # Read the content into a BytesIO object
-                    upload_to_s3(s3_bucket, s3_object_key, file_buffer)
+    try:
+        with TarFile.open(fileobj=file_obj) as tarObj:
+            for member in tarObj.getmembers():
+                if member.isfile():
+                    s3_object_key = f"{s3_prefix}/{member.name}"
+                    print(f"Processing file {member.name} from TAR for upload to s3://{s3_bucket}/{s3_object_key}")
+                    if s3_file_exists(s3_bucket, s3_object_key):
+                        print(f"File s3://{s3_bucket}/{s3_object_key} already exists, skipping.")
+                        continue
+                    breakpoint()
+                    extracted_file = tarObj.extractfile(member)
+                    if extracted_file:
+                        file_buffer = io.BytesIO(extracted_file.read())  # Read the content into a BytesIO object
+                        upload_to_s3(s3_bucket, s3_object_key, file_buffer)
+    except Exception as e:
+        print(f"Failed to process TAR file: {e}")
 
 
 def download_and_upload(urls, s3_bucket, s3_prefix, unzip=True, curl=True, threads=1, retry=3):
@@ -138,7 +141,7 @@ for split, patches in [("train", 50 + 1), ("val", 43 + 1)]:
         download_and_upload(
             [f"{base_url}zhiyuan_objv2_{split}.tar.gz"], s3_bucket=s3_bucket, s3_prefix=s3_prefix
         )
-    #     patch_urls = [f"{base_url}patch{i}.tar.gz" for i in range(patches)]
+        patch_urls = [f"{base_url}patch{i}.tar.gz" for i in range(patches)]
     #     download_and_upload(
     #         patch_urls, s3_bucket=s3_bucket, s3_prefix=f"{s3_prefix}/images/train", curl=True, threads=64
     #     )
