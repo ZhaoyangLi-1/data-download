@@ -27,12 +27,9 @@ def s3_file_exists(bucket_name, object_key):
 def upload_to_s3(bucket_name, object_key, file_obj):
     print(f"Preparing to upload to s3://{bucket_name}/{object_key}...")
 
-    if s3_file_exists(bucket_name, object_key):
-        print(f"File s3://{bucket_name}/{object_key} already exists, skipping upload.")
-        return
-
     try:
-        file_obj.seek(0)  # Ensure the file pointer is at the start before upload
+        # Reset the file pointer to the start before uploading
+        file_obj.seek(0)
         s3_client.upload_fileobj(file_obj, bucket_name, object_key)
         print(f"Uploaded to s3://{bucket_name}/{object_key}")
     except Exception as e:
@@ -51,7 +48,7 @@ def process_zip_file(file_obj, s3_bucket, s3_prefix, exclude=(".DS_Store", "__MA
                     continue
 
                 with zipObj.open(f) as extracted_file:
-                    file_buffer = io.BytesIO(extracted_file.read())  # Ensure the extracted file is in memory as a BytesIO object
+                    file_buffer = io.BytesIO(extracted_file.read())  # Read the content into a BytesIO object
                     upload_to_s3(s3_bucket, s3_object_key, file_buffer)
 
 
