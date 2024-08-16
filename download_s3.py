@@ -32,6 +32,7 @@ def upload_to_s3(bucket_name, object_key, file_obj):
         return
 
     try:
+        file_obj.seek(0)  # Ensure the file pointer is at the start before upload
         s3_client.upload_fileobj(file_obj, bucket_name, object_key)
         print(f"Uploaded to s3://{bucket_name}/{object_key}")
     except Exception as e:
@@ -50,7 +51,8 @@ def process_zip_file(file_obj, s3_bucket, s3_prefix, exclude=(".DS_Store", "__MA
                     continue
 
                 with zipObj.open(f) as extracted_file:
-                    upload_to_s3(s3_bucket, s3_object_key, extracted_file)
+                    file_buffer = io.BytesIO(extracted_file.read())  # Ensure the extracted file is in memory as a BytesIO object
+                    upload_to_s3(s3_bucket, s3_object_key, file_buffer)
 
 
 def process_tar_file(file_obj, s3_bucket, s3_prefix):
@@ -66,7 +68,8 @@ def process_tar_file(file_obj, s3_bucket, s3_prefix):
 
                 extracted_file = tarObj.extractfile(member)
                 if extracted_file:
-                    upload_to_s3(s3_bucket, s3_object_key, extracted_file)
+                    file_buffer = io.BytesIO(extracted_file.read())  # Read the content into a BytesIO object
+                    upload_to_s3(s3_bucket, s3_object_key, file_buffer)
 
 
 def download_and_upload(urls, s3_bucket, s3_prefix, unzip=True, curl=True, threads=1, retry=3):
@@ -138,7 +141,7 @@ for split, patches in [("train", 50 + 1), ("val", 43 + 1)]:
         download_and_upload(
             [f"{base_url}zhiyuan_objv2_{split}.tar.gz"], s3_bucket=s3_bucket, s3_prefix=s3_prefix
         )
-        patch_urls = [f"{base_url}patch{i}.tar.gz" for i in range(patches)]
+    #     patch_urls = [f"{base_url}patch{i}.tar.gz" for i in range(patches)]
     #     download_and_upload(
     #         patch_urls, s3_bucket=s3_bucket, s3_prefix=f"{s3_prefix}/images/train", curl=True, threads=64
     #     )
@@ -153,4 +156,4 @@ for split, patches in [("train", 50 + 1), ("val", 43 + 1)]:
     #     patch_urls_v2 = [f"{base_url}images/v2/patch{i}.tar.gz" for i in range(16, patches)]
     #     download_and_upload(
     #         patch_urls_v2, s3_bucket=s3_bucket, s3_prefix=f"{s3_prefix}/images/val", curl=True, threads=64
-    #   )
+    #     )
