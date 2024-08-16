@@ -153,4 +153,4 @@ for split, patches in [("train", 50 + 1), ("val", 43 + 1)]:
     #     patch_urls_v2 = [f"{base_url}images/v2/patch{i}.tar.gz" for i in range(16, patches)]
     #     download_and_upload(
     #         patch_urls_v2, s3_bucket=s3_bucket, s3_prefix=f"{s3_prefix}/images/val", curl=True, threads=64
-        )
+    #   )
