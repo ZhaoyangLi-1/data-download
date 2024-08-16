@@ -54,6 +54,7 @@ def process_zip_file(file_obj, s3_bucket, s3_prefix, exclude=(".DS_Store", "__MA
 
 def process_tar_file(file_obj, s3_bucket, s3_prefix):
     print(f"Processing TAR file for upload to {s3_bucket}/{s3_prefix}")
+    breakpoint()
     try:
         with TarFile.open(fileobj=file_obj) as tarObj:
             for member in tarObj.getmembers():
